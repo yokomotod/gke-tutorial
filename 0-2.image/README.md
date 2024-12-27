@@ -1,51 +1,21 @@
-本家: https://cloud.google.com/kubernetes-engine/docs/deploy-app-cluster
+クラスタの準備が出来たので、次はデプロイするサンプルアプリケーションのDockerイメージを準備します。
 
-# デプロイする Docker イメージを作成する
+公式ドキュメント: https://cloud.google.com/kubernetes-engine/docs/deploy-app-cluster
 
-## Google Artifact Registry のリポジトリを作成する
-
-```console
-gcloud artifacts repositories create tutorial --repository-format=docker \
-    --location=$LOCATION \
-    --project=$PROJECT_ID
-```
-
-```
-Create request issued for: [tutorial]
-Waiting for operation [projects/m3-ai-team-k8s-tutorial-xxxxx/locations/asia-northeast1/operations/32d8a90b-a277-4ff0-a852-07c2de09e277] to
-complete...done.
-Created repository [tutorial].
-```
-
-認証
-
-```console
-gcloud auth configure-docker $LOCATION-docker.pkg.dev
-```
-
-```
-Adding credentials for: asia-northeast1-docker.pkg.dev
-After update, the following will be written to your Docker config file located at [/home/ubuntu/.docker/config.json]:
- {
-  "credHelpers": {
-    "asia-northeast1-docker.pkg.dev": "gcloud"
-  }
-}
-
-Do you want to continue (Y/n)?
-
-Docker configuration file updated.
-```
+## デプロイするDockerイメージを準備する
 
 ## サンプルアプリケーションをビルドする
 
-https://github.com/GoogleCloudPlatform/kubernetes-engine-samples/blob/main/quickstarts/hello-app/main.go
+Google Cloudが提供するサンプルアプリケーションをビルドします。
+
+ソースコード: https://github.com/GoogleCloudPlatform/kubernetes-engine-samples/blob/main/quickstarts/hello-app/main.go
+
+ビルド結果のイメージが公開されていて、公式ドキュメントではそちらを使っていますが、せっかくなのでビルドしてプッシュする部分もやってみましょう。
+
+ソースコードをcloneしてビルドします。イメージタグは後ほど作成するArtifact Registryの設定に合わせて指定します。
 
 ```console
 git clone https://github.com/GoogleCloudPlatform/kubernetes-engine-samples.git
-```
-
-```console
 cd kubernetes-engine-samples/quickstarts/hello-app/
 ```
 
@@ -53,21 +23,49 @@ cd kubernetes-engine-samples/quickstarts/hello-app/
 docker build -t $LOCATION-docker.pkg.dev/$PROJECT_ID/tutorial/hello-app:latest .
 ```
 
-ローカルで動作確認
+ローカルで動作確認してみましょう
 
 ```console
 docker run --rm -p 8080:8080 $LOCATION-docker.pkg.dev/$PROJECT_ID/tutorial/hello-app
 ```
 
+起動ログ
+
 ```
 2024/12/26 18:52:16 Server listening on port 8080
 ```
+
+curlやブラウザでアクセスできればビルド成功です。
 
 ```console
 curl localhost:8080
 ```
 
-GAR にプッシュ
+```
+Hello, world!
+Version: 1.0.0
+Hostname: 748b9d88aa6e
+```
+
+### Artifact Registryにプッシュする
+
+無事ビルドできたので、Artifact Registryにプッシュします。
+
+プッシュ先のリポジトリが必要なので作成しましょう。
+
+```console
+gcloud artifacts repositories create tutorial --repository-format=docker \
+    --location=$LOCATION \
+    --project=$PROJECT_ID
+```
+
+プッシュできるように認証を設定します。
+
+```console
+gcloud auth configure-docker $LOCATION-docker.pkg.dev
+```
+
+push！
 
 ```console
 docker push $LOCATION-docker.pkg.dev/$PROJECT_ID/tutorial/hello-app:latest
