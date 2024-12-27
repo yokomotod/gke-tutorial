@@ -1,0 +1,4 @@
+namespace: tutorial
+
+resources:
+  - ../base

@@ -1,0 +1,26 @@
+apiVersion: skaffold/v4beta11
+kind: Config
+build:
+  artifacts:
+    - image: asia-northeast1-docker.pkg.dev/m3-ai-team-k8s-tutorial-xxxxx/tutorial/hello-app
+      context: ../kubernetes-engine-samples/quickstarts/hello-app/
+      docker:
+        dockerfile: Dockerfile
+  platforms:
+    - linux/amd64
+  local:
+    useBuildkit: true
+
+manifests:
+  kustomize:
+    paths:
+      - dev
+
+profiles:
+  - name: dev
+
+  - name: prod
+    manifests:
+      kustomize:
+        paths:
+          - prod

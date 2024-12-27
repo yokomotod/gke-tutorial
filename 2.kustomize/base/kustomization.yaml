@@ -1,0 +1,6 @@
+namespace: TO_BE_SPECIFIED
+
+resources:
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml

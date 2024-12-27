@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helloweb
+  namespace: tutorial
+  labels:
+    app: hello
+spec:
+  selector:
+    matchLabels:
+      app: hello
+  template:
+    metadata:
+      labels:
+        app: hello
+    spec:
+      containers:
+        - name: hello-app
+          image: asia-northeast1-docker.pkg.dev/m3-ai-team-k8s-tutorial-xxxxx/tutorial/hello-app:latest
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 200m
